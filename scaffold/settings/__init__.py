@@ -79,7 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Included third-party apps
-    'django_fullclean',
+    'scaffold.modules.fullclean',
     'rest_framework',
     'django_cron',
     'django_filters',
