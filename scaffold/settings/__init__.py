@@ -228,7 +228,7 @@ if os.environ.get('DJANGO_CORS') == '1':
     MIDDLEWARE.insert(
         MIDDLEWARE.index('django.middleware.common.CommonMiddleware') + 1,
         'corsheaders.middleware.CorsMiddleware',
-        )
+    )
 
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 CORS_ORIGIN_REGEX_WHITELIST = r'.*'
@@ -266,7 +266,7 @@ REST_FRAMEWORK = {
     'DATE_FORMAT': '%Y-%m-%d',
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
     'COERCE_DECIMAL_TO_STRING': False,
-    # 'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'core.exceptions.exception_handler',
 
     # Parser classes priority-wise for Swagger
     'DEFAULT_PARSER_CLASSES': [
