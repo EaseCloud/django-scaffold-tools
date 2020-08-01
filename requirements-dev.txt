@@ -1,1 +1,14 @@
-django-scaffold-tools
+flake8
+mypy
+mypy_extensions
+pycodestyle
+pylint
+pylint-quotes
+pytest
+pytype
+semver
+pyee
+requests
+qrcode
+apscheduler
+lxml

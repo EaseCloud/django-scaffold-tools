@@ -1,3 +1,4 @@
+""" Custom specified pagination classes """
 from collections import OrderedDict
 
 from rest_framework import pagination
@@ -28,8 +29,7 @@ class PageNumberPagination(pagination.PageNumberPagination):
                         int(request.query_params[self.page_size_query_param]) <= 0:
                     return 1e100
                 # 原始的 rest_framework 实现
-                from rest_framework.pagination import _positive_int
-                return _positive_int(
+                return pagination._positive_int(
                     request.query_params[self.page_size_query_param],
                     strict=True,
                     cutoff=self.max_page_size

@@ -1,3 +1,4 @@
+""" rewrite the DRF filters module """
 from __future__ import unicode_literals
 
 import operator
@@ -12,7 +13,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.template import loader
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.compat import coreapi, coreschema, distinct
+from rest_framework.compat import distinct
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.settings import api_settings
 
@@ -27,7 +28,7 @@ except ImportError:
     coreschema = None
 
 
-class DeepFilterBackend(object):
+class DeepFilterBackend:
     """ 深入查询参数过滤器
     在 Django Rest Framework 中，支持以 queryset 的直接参数查询进行列表集的筛选
     在 DEFAULT_FILTER_BACKENDS 或者 ViewSet 的 filter_backends 中使用这个 DeepFilterBackend：
@@ -67,23 +68,29 @@ class DeepFilterBackend(object):
 
     @staticmethod
     def never():
+        """ todo """
         return Q(pk=None)
 
     @staticmethod
     def always():
+        """ todo """
         return ~Q(pk=None)
 
     @staticmethod
     def get_setting_value(key, default):
+        """ todo """
         if not hasattr(settings, key):
             return default
         return getattr(settings, key)
 
     def malformed_query(self):
+        """ todo """
         # 配置 ALLOW_MALFORMED_QUERY = False 以实现非授权条件断路（返回空集）
-        return self.always() if self.get_setting_value('ALLOW_MALFORMED_QUERY', True) else self.never()
+        return self.always() if self.get_setting_value('ALLOW_MALFORMED_QUERY', True) \
+            else self.never()
 
     def filter_queryset(self, request, queryset, view):
+        """ todo """
         self.request = request
         self.allowed_deep_params = getattr(view, 'allowed_deep_params', ())
 
@@ -104,6 +111,7 @@ class DeepFilterBackend(object):
         return queryset
 
     def get_single_condition_query(self, key, val):
+        """ todo """
         # 不满足的条件设置为条件短路
         if not re.match(r'^!*[A-Za-z0-9_]+$', key):
             print('!!!! Unsupported query phase: {}={}'.format(key, val), file=sys.stderr)
@@ -124,32 +132,33 @@ class DeepFilterBackend(object):
         value_mapper = {'False': False, 'True': True, 'None': None}
         val = value_mapper[val] if val in value_mapper else val
         # 如果是 id 列表类的入参，按照逗号进行分割
-        if key.endswith('__in') and re.match('^(?:\d+,)*\d+$', val):
+        if key.endswith('__in') and re.match(r'^(?:\d+,)*\d+$', val):
             val = map(int, val.split(','))
-        elif key.endswith('__in') and re.match('^(?:[\d\w]+,)*[\d\w]+$', val):
+        elif key.endswith('__in') and re.match(r'^(?:[\d\w]+,)*[\d\w]+$', val):
             val = val.split(',')
         # 返回展开的条件
         return Q(**{key: val})
 
     def parse_complex_query(self, query):
+        """ todo """
         if '||' in query:
-            q = self.never()
+            query_set = self.never()
             for part in query.split('||'):
-                q |= self.parse_complex_query(part)
-            return q
-        elif '&&' in query:
-            q = self.always()
+                query_set |= self.parse_complex_query(part)
+            return query_set
+        if '&&' in query:
+            query_set = self.always()
             for part in query.split('&&'):
-                q &= self.parse_complex_query(part)
-            return q
-        else:
-            tup = query.split('=')
-            if len(tup) != 2:
-                print('!!!! Unsupported query phase: {}'.format(query), file=sys.stderr)
-                return self.malformed_query()
-            return self.get_single_condition_query(*tup)  # tup=(key,val)
+                query_set &= self.parse_complex_query(part)
+            return query_set
+        tup = query.split('=')
+        if len(tup) != 2:
+            print('!!!! Unsupported query phase: {}'.format(query), file=sys.stderr)
+            return self.malformed_query()
+        return self.get_single_condition_query(*tup)  # tup=(key,val)
 
     def get_schema_fields(self, view):
+        """ todo """
         # This is not compatible with widgets where the query param differs from the
         # filter's attribute name. Notably, this includes `MultiWidget`, where query
         # params will be of the format `<name>_0`, `<name>_1`, etc...
@@ -199,6 +208,7 @@ class OrderingFilter(BaseFilterBackend):
         return self.get_default_ordering(view)
 
     def get_default_ordering(self, view):
+        """ todo """
         ordering = getattr(view, 'ordering', None)
         if isinstance(ordering, str):
             return (ordering,)
@@ -256,10 +266,13 @@ class OrderingFilter(BaseFilterBackend):
     #     return valid_fields
 
     # def remove_invalid_fields(self, queryset, fields, view, request):
-    #     valid_fields = [item[0] for item in self.get_valid_fields(queryset, view, {'request': request})]
-    #     return [term for term in fields if term.lstrip('-') in valid_fields and ORDER_PATTERN.match(term)]
+    #     valid_fields = [item[0] for item in self.get_valid_fields(queryset, view,
+    #  {'request': request})]
+    #     return [term for term in fields if term.lstrip('-') in
+    # valid_fields and ORDER_PATTERN.match(term)]
 
     def filter_queryset(self, request, queryset, view):
+        """ todo """
         ordering = self.get_ordering(request, queryset, view)
 
         if ordering:
@@ -268,6 +281,7 @@ class OrderingFilter(BaseFilterBackend):
         return queryset
 
     def get_template_context(self, request, queryset, view):
+        """ todo """
         current = self.get_ordering(request, queryset, view)
         current = None if not current else current[0]
         options = []
@@ -283,11 +297,13 @@ class OrderingFilter(BaseFilterBackend):
         return context
 
     def to_html(self, request, queryset, view):
+        """ todo """
         template = loader.get_template(self.template)
         context = self.get_template_context(request, queryset, view)
         return template.render(context)
 
     def get_schema_fields(self, view):
+        """ todo """
         assert coreapi is not None, 'coreapi must be installed to use `get_schema_fields()`'
         assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
         return [
@@ -304,6 +320,7 @@ class OrderingFilter(BaseFilterBackend):
 
 
 class SearchFilter(BaseFilterBackend):
+    """ todo """
     # The URL query parameter used for the search.
     search_param = api_settings.SEARCH_PARAM
     template = 'rest_framework/filters/search.html'
@@ -325,6 +342,7 @@ class SearchFilter(BaseFilterBackend):
         return params.replace(',', ' ').split()
 
     def construct_search(self, field_name):
+        """ todo """
         lookup = self.lookup_prefixes.get(field_name[0])
         if lookup:
             field_name = field_name[1:]
@@ -353,6 +371,7 @@ class SearchFilter(BaseFilterBackend):
         return False
 
     def filter_queryset(self, request, queryset, view):
+        """ todo """
         search_fields = getattr(view, 'search_fields', None)
         search_terms = self.get_search_terms(request)
 
@@ -383,6 +402,7 @@ class SearchFilter(BaseFilterBackend):
         return queryset
 
     def to_html(self, request, queryset, view):
+        """ todo """
         if not getattr(view, 'search_fields', None):
             return ''
 
@@ -396,6 +416,7 @@ class SearchFilter(BaseFilterBackend):
         return template.render(context)
 
     def get_schema_fields(self, view):
+        """ todo """
         assert coreapi is not None, 'coreapi must be installed to use `get_schema_fields()`'
         assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
         return [

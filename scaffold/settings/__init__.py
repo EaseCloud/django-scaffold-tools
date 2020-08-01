@@ -42,7 +42,8 @@ Environment variables:
 - DJANGO_DB_TYPE: sqlite3 / mysql(default), if more type wanted, pull-requests are welcomed.
 - DJANGO_DB_HOST: default 127.0.0.1
 - DJANGO_DB_PORT: default 3306
-- DJANGO_DB_NAME: default django_{app_name} (if using sqlite3, it stands for db filename, default db.sqlite3)
+- DJANGO_DB_NAME: default django_{app_name}
+    (if using sqlite3, it stands for db filename, default db.sqlite3)
 - DJANGO_DB_USER: default root
 - DJANGO_DB_PASS: default root
 - DJANGO_DB_CHARSET: default utf8mb4
@@ -333,7 +334,8 @@ REST_FRAMEWORK = {
 # CUSTOM_SESSION_HEADER = 'SESSION-ID'
 #
 # # ============== MethodOverrideMiddleware =================
-# METHOD_OVERRIDE_ALLOWED_HTTP_METHODS = ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH']
+# METHOD_OVERRIDE_ALLOWED_HTTP_METHODS =\
+# ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH']
 # METHOD_OVERRIDE_PARAM_KEY = '_method'
 # METHOD_OVERRIDE_HTTP_HEADER = 'HTTP_X_HTTP_METHOD_OVERRIDE'
 #
