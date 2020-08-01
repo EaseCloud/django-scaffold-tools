@@ -42,7 +42,7 @@ Environment variables:
 - DJANGO_DB_TYPE: sqlite3 / mysql(default), if more type wanted, pull-requests are welcomed.
 - DJANGO_DB_HOST: default 127.0.0.1
 - DJANGO_DB_PORT: default 3306
-- DJANGO_DB_NAME: !!!REQUIRED!!! (if using sqlite3, it stands for db filename, default db.sqlite3)
+- DJANGO_DB_NAME: default django_{app_name} (if using sqlite3, it stands for db filename, default db.sqlite3)
 - DJANGO_DB_USER: default root
 - DJANGO_DB_PASS: default root
 - DJANGO_DB_CHARSET: default utf8mb4
@@ -50,11 +50,16 @@ Environment variables:
 """
 
 import os
+import sys
 
 from django.core.exceptions import ImproperlyConfigured
 
+# Get the main module name
+app_name = os.environ['DJANGO_SETTINGS_MODULE'].split('.')[0]
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# https://stackoverflow.com/a/606574/2544762
+BASE_DIR = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
 
 # Quick-start development base_settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -104,6 +109,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+ROOT_URLCONF = f'{app_name}.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -120,6 +127,8 @@ TEMPLATES = [
     },
 ]
 
+WSGI_APPLICATION = f'{app_name}.wsgi.application'
+
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -127,9 +136,10 @@ DATABASES = dict()
 
 _db_type: str = os.environ.get('DJANGO_DB_TYPE', 'mysql').lower()
 if _db_type == 'sqlite3':
+    _db_name = os.environ.get('DJANGO_DB_NAME', 'db.sqlite3')
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(
+        'NAME': _db_name if _db_name.startswith('/') else os.path.join(
             BASE_DIR,
             os.environ.get('DJANGO_DB_NAME', 'db.sqlite3')
         ),
@@ -138,7 +148,7 @@ elif _db_type == 'mysql':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DJANGO_DB_NAME'),
+            'NAME': os.environ.get('DJANGO_DB_NAME', f'django_{app_name}'),
             'USER': os.environ.get('DJANGO_DB_USER', 'root'),
             'PASSWORD': os.environ.get('DJANGO_DB_USER', 'root'),
             'HOST': os.environ.get('DJANGO_DB_HOST', '127.0.0.1'),
