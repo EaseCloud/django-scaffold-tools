@@ -1,0 +1,9 @@
+django>=3,<4
+django-cors-headers
+django-cron
+django-filter
+djangorestframework
+djangorestframework-filters
+djangorestframework-queryfields
+djangorestframework-yaml
+mysqlclient
