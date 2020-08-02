@@ -1,10 +1,9 @@
-from datetime import datetime
-
-from django_base.base_meta.models import *
+from .meta import *
 
 
 class AbstractMember(EntityModel):
-    """ 客户类
+    """ 会员类
+    从基础的用户角色扩展，
     """
 
     GENDER_SECRET = ''
@@ -70,7 +69,7 @@ class AbstractMember(EntityModel):
 
     avatar = models.OneToOneField(
         verbose_name='头像',
-        to='base_media.Image',
+        to='scaffold.models.entity.media.Image',
         related_name='%(class)s',
         null=True,
         blank=True,

@@ -7,3 +7,4 @@ djangorestframework-filters
 djangorestframework-queryfields
 djangorestframework-yaml
 mysqlclient
+pillow

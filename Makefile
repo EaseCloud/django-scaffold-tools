@@ -87,7 +87,7 @@ version:
 		&& echo VERSION = \'$${newVersion}\' > scaffold/version.py \
 		&& git add VERSION scaffold/version.py \
 		&& git commit -m "$${newVersion}" > /dev/null \
-		&& git tag "v$${newVersion}" \
+		&& git tag "$${newVersion}" \
 		&& echo "Bumped version to $${newVersion}"
 
 .PHONY: deploy-version

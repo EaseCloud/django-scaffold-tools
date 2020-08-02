@@ -85,7 +85,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Included third-party apps
-    'scaffold.modules.fullclean',
+    # 'scaffold.modules',
+    # 'scaffold.models.entity.media',
     'rest_framework',
     'django_cron',
     'django_filters',

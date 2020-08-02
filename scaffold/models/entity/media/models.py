@@ -143,7 +143,7 @@ class Audio(AbstractAttachment,
 class GalleryModel(models.Model):
     images = models.ManyToManyField(
         verbose_name='图片',
-        to='base_media.Image',
+        to=Image,
         related_name='%(class)ss_attached',
         blank=True,
     )

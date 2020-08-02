@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
+
+from scaffold.exceptions.exceptions import AppError
 
 
 # def patch_methods(model_class):
@@ -115,9 +116,6 @@ class ContentModel(models.Model):
     class Meta:
         abstract = True
 
-    def __str__(self):
-        return self.name or '[{}]'.format(self.pk)
-
 
 class HierarchicalModel(models.Model):
     """ 层次模型，具备 parent 和 children 属性
@@ -139,13 +137,12 @@ class HierarchicalModel(models.Model):
         p = self.parent
         while p is not None:
             if p.pk == self.pk:
-                from django.core.exceptions import ValidationError
                 raise ValidationError('级联结构不能出现循环引用')
             p = p.parent
 
     @property
     def parent_name(self):
-        return self.parent and self.parent.name
+        return self.parent and getattr(self.parent, 'name', None)
 
 
 class NullableUserOwnedModel(models.Model):
@@ -188,13 +185,6 @@ class EntityModel(NamedModel,
                   DatedModel):
     """ 实体类模型
     """
-
-    name = models.CharField(
-        verbose_name='名称',
-        max_length=255,
-        blank=True,
-        default='',
-    )
 
     class Meta:
         abstract = True
@@ -264,14 +254,12 @@ class AbstractValidationModel(models.Model):
 
     def approve(self, *args, **kwargs):
         if self.status not in (self.STATUS_PENDING, self.STATUS_REJECTED):
-            from django_base.base_utils.app_error.exceptions import AppError
             raise AppError('ERR091', '审批对象的状态必须为等待审批或者驳回')
         self.status = self.STATUS_SUCCESS
         self.date_response = datetime.now()
         self.save()
 
     def reject(self, reason, *args, **kwargs):
-        from django_base.base_utils.app_error.exceptions import AppError
         if self.status not in (self.STATUS_PENDING,):
             raise AppError('ERR092', '审批对象的状态必须为等待审批')
         if not reason:
@@ -283,25 +271,26 @@ class AbstractValidationModel(models.Model):
 
 
 class AbstractTransactionModel(models.Model):
-    user_debit = models.ForeignKey(
+    debit = models.ForeignKey(
         verbose_name='借方用户',
         to=User,
         related_name='%(class)ss_debit',
         null=True,
         blank=True,
         on_delete=models.PROTECT,
-        help_text='即余额增加的用户',
+        help_text='即余额增加的账户，默认情况用户作为账户，'
+                  '如需定义其他模型作为账号，派生时覆写此字段',
     )
 
-    user_credit = models.ForeignKey(
+    credit = models.ForeignKey(
         verbose_name='贷方用户',
         to=User,
         related_name='%(class)ss_credit',
         null=True,
         blank=True,
         on_delete=models.PROTECT,
-        help_text='即余额减少的用户',
-
+        help_text='即余额减少的账户，默认情况用户作为账户，'
+                  '如需定义其他模型作为账号，派生时覆写此字段',
     )
 
     amount = models.DecimalField(
