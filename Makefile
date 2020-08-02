@@ -84,12 +84,12 @@ publish:
 version:
 	@newVersion=$$(awk -F. '{print $$1"."$$2"."$$3+1}' < VERSION) \
 		&& echo $${newVersion} > VERSION \
-		&& echo VERSION = \'$${newVersion}\' > scaffold/version.py \
-		&& git add VERSION scaffold/version.py \
+		&& echo VERSION = \'$${newVersion}\' > src/version.py \
+		&& git add VERSION src/version.py \
 		&& git commit -m "$${newVersion}" > /dev/null \
 		&& git tag "$${newVersion}" \
 		&& echo "Bumped version to $${newVersion}"
 
 .PHONY: deploy-version
 deploy-version:
-	echo "VERSION = '$$(cat VERSION)'" > scaffold/version.py
+	echo "VERSION = '$$(cat VERSION)'" > src/scaffold/version.py

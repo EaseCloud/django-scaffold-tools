@@ -57,5 +57,7 @@ def get_install_requires() -> [str]:
 
 setuptools.setup(
     version=get_version(),
+    packages=setuptools.find_packages('src'),
+    package_dir={'': 'src'},
     install_requires=get_install_requires(),
 )
