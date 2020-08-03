@@ -8,3 +8,4 @@ djangorestframework-queryfields
 djangorestframework-yaml
 mysqlclient
 pillow
+uuslug
