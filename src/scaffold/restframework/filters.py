@@ -104,7 +104,8 @@ class DeepFilterBackend:
             if key.startswith('_complex_query'):
                 queryset = queryset.filter(self.parse_complex_query(val))
 
-        if settings.REST_DEEP_DEFAULT_DISTINCT or request.query_params.get('~DISTINCT'):
+        if getattr(settings, 'REST_DEEP_DEFAULT_DISTINCT', None) \
+                or request.query_params.get('~DISTINCT'):
             queryset = queryset.distinct()
 
         # 最后要加 distinct 去重

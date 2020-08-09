@@ -4,10 +4,11 @@
 # 	Author: Alfred Huang <57082212@qq.com> https://github.com/fish-ball
 #
 
-SOURCE_GLOB=$(wildcard bin/*.py scaffold/**/*.py tests/**/*.py examples/*.py)
+SOURCE_GLOB=$(filter-out src/scaffold/version.py src/scaffold/libs/%, $(wildcard bin/*.py src/**/*.py tests/**/*.py examples/*.py))
 
 # F811: https://github.com/PyCQA/pyflakes/issues/320#issuecomment-469337000
 IGNORE_PEP=E203,E221,E241,E272,E501,F811
+IGNORE_PATH=src/scaffold/version.py,src/scaffold/libs
 
 # help scripts to find the right place of wechaty module
 export PYTHONPATH=./
@@ -20,7 +21,8 @@ clean:
 	rm -fr dist/* .pytype
 
 .PHONY: lint
-lint: pylint pycodestyle flake8 mypy pytype
+lint: pylint pycodestyle flake8 mypy
+#lint: pylint pycodestyle flake8 mypy pytype
 
 
 # disable: TODO list temporay
@@ -52,7 +54,7 @@ mypy:
 
 .PHONY: pytype
 pytype:
-	pytype scaffold/ --disable=import-error,pyi-error
+	pytype ./ --disable=import-error,pyi-error --exclude=${IGNORE_PATH}
 
 .PHONY: install
 install:
@@ -85,7 +87,7 @@ version:
 	@newVersion=$$(awk -F. '{print $$1"."$$2"."$$3+1}' < VERSION) \
 		&& echo $${newVersion} > VERSION \
 		&& echo VERSION = \'$${newVersion}\' > src/version.py \
-		&& git add VERSION src/version.py \
+		&& git add VERSION src/scaffold/version.py \
 		&& git commit -m "$${newVersion}" > /dev/null \
 		&& git tag "$${newVersion}" \
 		&& echo "Bumped version to $${newVersion}"
