@@ -70,9 +70,13 @@ def auto_declare_serializers(models_module, context):
                 or not issubclass(model, models.Model) \
                 or model._meta.abstract:
             continue
+        serializer_name = model.__name__ + 'Serializer'
+        # Do not override
+        if serializer_name in context:
+            continue
         # Derive subclass of serializers.Serializer
         serializer = type(
-            model.__name__ + 'Serializer',
+            serializer_name,
             (serializers.ModelSerializer,),
             dict(
                 Meta=type('Meta', (object,), dict(model=model, fields='__all__')),
@@ -92,8 +96,13 @@ def auto_declare_viewsets(serializers_module, context):
                 or not issubclass(serializer, serializers.ModelSerializer):
             continue
         model = getattr(serializer, 'Meta').model
+        viewset_name = model.__name__ + 'ViewSet'
+        # Do not override
+        if viewset_name in context:
+            continue
+        # Dynamic declare the subclass
         view_set = type(
-            model.__name__ + 'ViewSet',
+            viewset_name,
             (viewsets.ModelViewSet,),
             dict(queryset=model.objects.all(), serializer_class=serializer)
         )
