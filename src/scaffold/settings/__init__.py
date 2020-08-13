@@ -263,7 +263,6 @@ REST_FRAMEWORK = {
     #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     # ],
     'DEFAULT_FILTER_BACKENDS': (
-        # 'rest_framework_filters.backends.DjangoFilterBackend',
         # 'rest_framework.filters.SearchFilter',
         # 'rest_framework.filters.OrderingFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -278,7 +277,7 @@ REST_FRAMEWORK = {
     'DATE_FORMAT': '%Y-%m-%d',
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
     'COERCE_DECIMAL_TO_STRING': False,
-    'EXCEPTION_HANDLER': 'core.exceptions.exception_handler',
+    # 'EXCEPTION_HANDLER': 'core.exceptions.exception_handler',
 
     # Parser classes priority-wise for Swagger
     'DEFAULT_PARSER_CLASSES': [

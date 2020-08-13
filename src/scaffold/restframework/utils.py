@@ -104,7 +104,12 @@ def auto_declare_viewsets(serializers_module, context):
         view_set = type(
             viewset_name,
             (viewsets.ModelViewSet,),
-            dict(queryset=model.objects.all(), serializer_class=serializer)
+            dict(
+                queryset=model.objects.all(),
+                serializer_class=serializer,
+                filter_fields='__all__',
+                ordering=['-pk']
+            )
         )
         logger.debug(f'>>> Automatically declared <class \'{view_set.__name__}\'>')
         context[view_set.__name__] = view_set

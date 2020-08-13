@@ -177,6 +177,119 @@ class DeepFilterBackend:
         ]
 
 
+class SearchFilter(BaseFilterBackend):
+    """ todo """
+    # The URL query parameter used for the search.
+    search_param = api_settings.SEARCH_PARAM
+    template = 'rest_framework/filters/search.html'
+    lookup_prefixes = {
+        '^': 'istartswith',
+        '=': 'iexact',
+        '@': 'search',
+        '$': 'iregex',
+    }
+    search_title = _('Search')
+    search_description = _('A search term.')
+
+    def get_search_terms(self, request):
+        """
+        Search terms are set by a ?search=... query parameter,
+        and may be comma and/or whitespace delimited.
+        """
+        params = request.query_params.get(self.search_param, '')
+        return params.replace(',', ' ').split()
+
+    def construct_search(self, field_name):
+        """ todo """
+        lookup = self.lookup_prefixes.get(field_name[0])
+        if lookup:
+            field_name = field_name[1:]
+        else:
+            lookup = 'icontains'
+        return LOOKUP_SEP.join([field_name, lookup])
+
+    def must_call_distinct(self, queryset, search_fields):
+        """
+        Return True if 'distinct()' should be used to query the given lookups.
+        """
+        for search_field in search_fields:
+            opts = queryset.model._meta
+            if search_field[0] in self.lookup_prefixes:
+                search_field = search_field[1:]
+            parts = search_field.split(LOOKUP_SEP)
+            for part in parts:
+                field = opts.get_field(part)
+                if hasattr(field, 'get_path_info'):
+                    # This field is a relation, update opts to follow the relation
+                    path_info = field.get_path_info()
+                    opts = path_info[-1].to_opts
+                    if any(path.m2m for path in path_info):
+                        # This field is a m2m relation so we know we need to call distinct
+                        return True
+        return False
+
+    def filter_queryset(self, request, queryset, view):
+        """ todo """
+        search_fields = getattr(view, 'search_fields', None)
+        search_terms = self.get_search_terms(request)
+
+        if not search_fields or not search_terms:
+            return queryset
+
+        orm_lookups = [
+            self.construct_search(str(search_field))
+            for search_field in search_fields
+        ]
+
+        base = queryset
+        conditions = []
+        for search_term in search_terms:
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups
+            ]
+            conditions.append(reduce(operator.or_, queries))
+        queryset = queryset.filter(reduce(operator.and_, conditions))
+
+        if self.must_call_distinct(queryset, search_fields):
+            # Filtering against a many-to-many field requires us to
+            # call queryset.distinct() in order to avoid duplicate items
+            # in the resulting queryset.
+            # We try to avoid this if possible, for performance reasons.
+            queryset = distinct(queryset, base)
+        return queryset
+
+    def to_html(self, request, queryset, view):
+        """ todo """
+        if not getattr(view, 'search_fields', None):
+            return ''
+
+        term = self.get_search_terms(request)
+        term = term[0] if term else ''
+        context = {
+            'param': self.search_param,
+            'term': term
+        }
+        template = loader.get_template(self.template)
+        return template.render(context)
+
+    def get_schema_fields(self, view):
+        """ todo """
+        assert coreapi is not None, 'coreapi must be installed to use `get_schema_fields()`'
+        assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
+        return [
+            coreapi.Field(
+                name=self.search_param,
+                required=False,
+                location='query',
+                schema=coreschema.String(
+                    title=force_text(self.search_title),
+                    description=force_text(self.search_description)
+                )
+            )
+        ]
+
+
 class OrderingFilter(BaseFilterBackend):
     """
     改编自 rest_framework.filters.OrderingFilter，由于过于严格的过滤，导致不能支持级联字段的排序，例如
@@ -315,119 +428,6 @@ class OrderingFilter(BaseFilterBackend):
                 schema=coreschema.String(
                     title=force_text(self.ordering_title),
                     description=force_text(self.ordering_description)
-                )
-            )
-        ]
-
-
-class SearchFilter(BaseFilterBackend):
-    """ todo """
-    # The URL query parameter used for the search.
-    search_param = api_settings.SEARCH_PARAM
-    template = 'rest_framework/filters/search.html'
-    lookup_prefixes = {
-        '^': 'istartswith',
-        '=': 'iexact',
-        '@': 'search',
-        '$': 'iregex',
-    }
-    search_title = _('Search')
-    search_description = _('A search term.')
-
-    def get_search_terms(self, request):
-        """
-        Search terms are set by a ?search=... query parameter,
-        and may be comma and/or whitespace delimited.
-        """
-        params = request.query_params.get(self.search_param, '')
-        return params.replace(',', ' ').split()
-
-    def construct_search(self, field_name):
-        """ todo """
-        lookup = self.lookup_prefixes.get(field_name[0])
-        if lookup:
-            field_name = field_name[1:]
-        else:
-            lookup = 'icontains'
-        return LOOKUP_SEP.join([field_name, lookup])
-
-    def must_call_distinct(self, queryset, search_fields):
-        """
-        Return True if 'distinct()' should be used to query the given lookups.
-        """
-        for search_field in search_fields:
-            opts = queryset.model._meta
-            if search_field[0] in self.lookup_prefixes:
-                search_field = search_field[1:]
-            parts = search_field.split(LOOKUP_SEP)
-            for part in parts:
-                field = opts.get_field(part)
-                if hasattr(field, 'get_path_info'):
-                    # This field is a relation, update opts to follow the relation
-                    path_info = field.get_path_info()
-                    opts = path_info[-1].to_opts
-                    if any(path.m2m for path in path_info):
-                        # This field is a m2m relation so we know we need to call distinct
-                        return True
-        return False
-
-    def filter_queryset(self, request, queryset, view):
-        """ todo """
-        search_fields = getattr(view, 'search_fields', None)
-        search_terms = self.get_search_terms(request)
-
-        if not search_fields or not search_terms:
-            return queryset
-
-        orm_lookups = [
-            self.construct_search(str(search_field))
-            for search_field in search_fields
-        ]
-
-        base = queryset
-        conditions = []
-        for search_term in search_terms:
-            queries = [
-                models.Q(**{orm_lookup: search_term})
-                for orm_lookup in orm_lookups
-            ]
-            conditions.append(reduce(operator.or_, queries))
-        queryset = queryset.filter(reduce(operator.and_, conditions))
-
-        if self.must_call_distinct(queryset, search_fields):
-            # Filtering against a many-to-many field requires us to
-            # call queryset.distinct() in order to avoid duplicate items
-            # in the resulting queryset.
-            # We try to avoid this if possible, for performance reasons.
-            queryset = distinct(queryset, base)
-        return queryset
-
-    def to_html(self, request, queryset, view):
-        """ todo """
-        if not getattr(view, 'search_fields', None):
-            return ''
-
-        term = self.get_search_terms(request)
-        term = term[0] if term else ''
-        context = {
-            'param': self.search_param,
-            'term': term
-        }
-        template = loader.get_template(self.template)
-        return template.render(context)
-
-    def get_schema_fields(self, view):
-        """ todo """
-        assert coreapi is not None, 'coreapi must be installed to use `get_schema_fields()`'
-        assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
-        return [
-            coreapi.Field(
-                name=self.search_param,
-                required=False,
-                location='query',
-                schema=coreschema.String(
-                    title=force_text(self.search_title),
-                    description=force_text(self.search_description)
                 )
             )
         ]
