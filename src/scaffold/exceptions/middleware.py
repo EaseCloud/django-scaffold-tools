@@ -1,7 +1,7 @@
 from django.utils.deprecation import MiddlewareMixin
 
-from django_base.base_utils.app_error.exceptions import AppError
-from django_base.base_utils.utils import response_fail
+from .exceptions import AppError
+from ..utils.http import response_fail
 
 
 class AppErrorMiddleware(MiddlewareMixin):
@@ -20,3 +20,4 @@ class AppErrorMiddleware(MiddlewareMixin):
                 data=exception.data,
                 silent=exception.silent,
             )
+
