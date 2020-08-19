@@ -95,9 +95,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     # 'django_base.base_utils.middleware.MethodOverrideMiddleware',
     # 'django_base.base_utils.middleware.ExplicitSessionMiddleware',
-    # 'django_base.base_utils.middleware.CustomExceptionMiddleware',
-    # 'django_base.base_utils.app_error.middleware.AppErrorMiddleware',
-    # 'django_base.base_utils.middleware.GlobalRequestMiddleware',
     # 生产环境建议关闭，使用手动定义的 MEDIA_URL 以及 STATIC_URL
     # 'django_base.base_utils.middleware.FullMediaUrlMiddleware',
     # 'django_base.base_utils.middleware.DebugMiddleware',
@@ -109,6 +106,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'scaffold.middlewares.GlobalRequestMiddleware',
+    'scaffold.middlewares.CustomExceptionMiddleware',
+    'scaffold.exceptions.middleware.AppErrorMiddleware',
 ]
 
 ROOT_URLCONF = f'{app_name}.urls'
