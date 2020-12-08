@@ -94,8 +94,9 @@ class DeepFilterBackend:
         self.request = request
         self.allowed_deep_params = getattr(view, 'allowed_deep_params', ())
 
-        # 注意，这个只能在 list 方法中生效，其他方法不作篡改
-        if view.action != 'list':
+        # 注意，这个只能在 list 方法中生效，其他方法需要在 ViewSet 中加白名单
+        if view.action != 'list' and \
+                view.action not in getattr(view, 'allowed_filtering_actions', []):
             return queryset
 
         for key, val in request.query_params.items():
