@@ -60,7 +60,9 @@ app_name = os.environ['DJANGO_SETTINGS_MODULE'].split('.')[0]
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # https://stackoverflow.com/a/606574/2544762
-BASE_DIR = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(
+    sys.modules[os.environ.get('DJANGO_SETTINGS_MODULE')].__file__
+)))
 
 # Quick-start development base_settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
