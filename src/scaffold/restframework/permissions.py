@@ -64,16 +64,16 @@ class HasPermissions(BasePermission):
     # if no app name specified, e.g. 'my_permission' rather than 'myapp.my_permissions',
     # a default app label will be added, you can set another app in setting as needed.
     app_label = getattr(settings, 'DEFAULT_PERMISSION_APP', 'core')
-
-    def __init__(self):
-        self.perms = []
+    perms = ()
 
     @classmethod
     def build(cls, *args):
-        perm = cls()
-        perm.perms = \
-            [p if '.' in p else f'{cls.app_label}.{p}' for p in args]
-        return perm
+        """ Derive a meta subclass of current by replacing the perms property. """
+        return type(
+            'HasPermissions',
+            (cls,),
+            dict(perms=(p if '.' in p else f'{cls.app_label}.{p}' for p in args))
+        )
 
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
