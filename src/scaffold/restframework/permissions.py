@@ -1,4 +1,5 @@
 """ Extended rest_framework permissions classes """
+import re
 from django.conf import settings
 from rest_framework.permissions import *
 
@@ -14,20 +15,22 @@ class ActionBasedPermission(AllowAny):
             serializer_class = MyModelSerializer
             queryset = MyModel.objects.all()
 
-            permission_classes = (ActionBasedPermission,)
+            permission_classes = [ActionBasedPermission]
             action_permissions = {
-                IsAuthenticated: ['update', 'partial_update', 'destroy', 'list', 'create'],
-                AllowAny: ['retrieve']
+                'list,retrieve': IsMember,
+                'destroy': IsAdminUser,
+                'create,update,partial_update':
+                    HasPermissions.build('basic_info_admin'),
             }
-
-            authentication_classes = (TokenAuthentication, SessionAuthentication)
     """
 
     def has_permission(self, request, view):
-        for cls, actions in getattr(view, 'action_permissions', {}).items():
+        for actions, cls in getattr(view, 'action_permissions', {}).items():
+            if isinstance(actions, str):
+                actions = re.split(r'\s+|[\.\|,]', actions)
             if view.action in actions:
                 return cls().has_permission(request, view)
-        return False
+        return True
 
 
 class IsAdminOrIsSelf(BasePermission):
