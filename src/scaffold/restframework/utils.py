@@ -68,10 +68,9 @@ def auto_declare_serializers(models_module, context):
     for model in models_module.__dict__.values():
         if not inspect.isclass(model) \
                 or not issubclass(model, models.Model) \
-                or model._meta.abstract:
-            continue
-        # Skip inconsist app, specifically when you import a Model from another app.
-        if model._meta.app_label != context['__package__']:
+                or model._meta.abstract \
+                or not model._meta.managed \
+                or model._meta.app_label != context['__package__']:
             continue
         serializer_name = model.__name__ + 'Serializer'
         # Do not override
