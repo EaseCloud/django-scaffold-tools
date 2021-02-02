@@ -131,7 +131,6 @@ class AbstractMember(EntityModel):
         :return:
         """
         self.user.delete()
-        return super().delete(*args, **kwargs)
 
     # def get_age(self):
     #     import time
