@@ -70,6 +70,9 @@ def auto_declare_serializers(models_module, context):
                 or not issubclass(model, models.Model) \
                 or model._meta.abstract:
             continue
+        # Skip inconsist app, specifically when you import a Model from another app.
+        if model._meta.app_label != context['__package__']:
+            continue
         serializer_name = model.__name__ + 'Serializer'
         # Do not override
         if serializer_name in context:
@@ -96,6 +99,9 @@ def auto_declare_viewsets(serializers_module, context):
                 or not issubclass(serializer, serializers.ModelSerializer):
             continue
         model = getattr(serializer, 'Meta').model
+        # Skip inconsist app, specifically when you import a Model from another app.
+        if model._meta.app_label != context['__package__']:
+            continue
         viewset_name = model.__name__ + 'ViewSet'
         # Do not override
         if viewset_name in context:
