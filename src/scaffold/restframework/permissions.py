@@ -75,10 +75,10 @@ class HasPermissions(BasePermission):
         return type(
             'HasPermissions',
             (cls,),
-            dict(perms=(p if '.' in p else f'{cls.app_label}.{p}' for p in args))
+            dict(perms=tuple(p if '.' in p else f'{cls.app_label}.{p}' for p in args))
         )
 
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        return request.user.is_superuser or request.user.has_perms(self.perms)
+        return request.user.is_superuser or any(request.user.has_perm(perm) for perm in self.perms)
