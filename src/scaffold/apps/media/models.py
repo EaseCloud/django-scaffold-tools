@@ -65,6 +65,11 @@ class Image(AbstractAttachment,
         self.image.save(os.path.basename(path), File(open(path, 'rb')))
         self.save()
 
+    def save(self, *args, **kwargs):
+        if not self.ext_url and not self.image:
+            raise AppError(-1, '对象不能为空')
+        super().save(*args, **kwargs)
+
     @classmethod
     def from_file_path(cls, path):
         """ 工厂方法
@@ -119,6 +124,11 @@ class Video(AbstractAttachment,
         verbose_name_plural = '视频'
         db_table = 'base_media_video'
 
+    def save(self, *args, **kwargs):
+        if not self.ext_url and not self.video:
+            raise AppError(-1, '对象不能为空')
+        super().save(*args, **kwargs)
+
 
 class Audio(AbstractAttachment,
             models.Model):
@@ -139,6 +149,11 @@ class Audio(AbstractAttachment,
         verbose_name = '音频'
         verbose_name_plural = '音频'
         db_table = 'base_media_audio'
+
+    def save(self, *args, **kwargs):
+        if not self.ext_url and not self.audio:
+            raise AppError(-1, '对象不能为空')
+        super().save(*args, **kwargs)
 
 
 class GalleryModel(models.Model):
@@ -172,3 +187,8 @@ class Attachment(AbstractAttachment,
         verbose_name = '附件'
         verbose_name_plural = '附件'
         db_table = 'base_media_attachment'
+
+    def save(self, *args, **kwargs):
+        if not self.ext_url and not self.file:
+            raise AppError(-1, '对象不能为空')
+        super().save(*args, **kwargs)
