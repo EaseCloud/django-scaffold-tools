@@ -4,6 +4,7 @@ from . import models as m
 
 class AttachmentSerializer(serializers.ModelSerializer):
     url = serializers.URLField(read_only=True)
+    filename = serializers.ReadOnlyField(source='file.name')
 
     class Meta:
         model = m.Attachment
@@ -12,6 +13,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 class ImageSerializer(serializers.ModelSerializer):
     url = serializers.URLField(read_only=True)
+    filename = serializers.ReadOnlyField(source='image.name')
 
     class Meta:
         model = m.Image
