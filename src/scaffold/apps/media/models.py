@@ -1,3 +1,7 @@
+import tempfile
+
+import requests
+import os.path
 from django.db import models
 
 from scaffold.exceptions.exceptions import AppError
@@ -102,11 +106,35 @@ class Image(AbstractAttachment,
 
     @classmethod
     def from_url_download(cls, url):
-        """ TODO: 工厂方法
+        """ 工厂方法
         根据指定的 url 下载图片保存，生成一个对象
         :return:
         """
-        raise AppError(99999, '尚未实现', debug=True)
+        resp = requests.get(url)
+        tmp = tempfile.NamedTemporaryFile(delete=True)
+        with open(tmp.name, 'wb+') as f:
+            f.write(resp.content)
+            f.seek(0)
+            obj: Image = cls(name=os.path.basename(url))
+            obj.image.save(obj.name, f)
+            obj.save()
+            return obj
+
+    def freeze(self):
+        """ 将外部链接的图片固化到本地 """
+        if not self.ext_url:
+            return
+        resp = requests.get(self.ext_url)
+        tmp = tempfile.NamedTemporaryFile(delete=True)
+        with open(tmp.name, 'wb+') as f:
+            f.write(resp.content)
+            f.seek(0)
+            self.name = os.path.basename(self.ext_url)
+            self.ext_url = ''
+            self.image.save(self.name, f)
+            self.save()
+            return self
+
 
 
 class Video(AbstractAttachment,
