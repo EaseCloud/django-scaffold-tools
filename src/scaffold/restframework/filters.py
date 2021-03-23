@@ -100,7 +100,7 @@ class DeepFilterBackend:
             return queryset
 
         for key, val in request.query_params.items():
-            if '__' in key:
+            if '__' in key or val.startswith('$F__'):
                 queryset = queryset.filter(self.get_single_condition_query(key, val))
             if key.startswith('_complex_query'):
                 queryset = queryset.filter(self.parse_complex_query(val))
@@ -130,9 +130,14 @@ class DeepFilterBackend:
                 'add the params key name to `allowed_deep_params` list '
                 'in the View class.\n!!!!', file=sys.stderr)
             return self.malformed_query()
+
         # 特殊字符串值映射
         value_mapper = {'False': False, 'True': True, 'None': None}
-        val = value_mapper[val] if val in value_mapper else val
+        if val.startswith('$F__'):
+            # $F__xxxx 语义映射
+            val = models.F(val[4:])
+        elif val in value_mapper:
+            val = value_mapper[val]
         # 如果是 id 列表类的入参，按照逗号进行分割
         if key.endswith('__in') and re.match(r'^(?:\d+,)*\d+$', val):
             val = map(int, val.split(','))
