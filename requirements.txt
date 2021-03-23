@@ -9,3 +9,4 @@ djangorestframework-yaml
 mysqlclient
 pillow
 django-uuslug
+requests
