@@ -252,6 +252,14 @@ CSRF_TRUSTED_ORIGINS = ['null', '.local', 'localhost', '127.0.0.1']
 # REST Framework
 # https://www.django-rest-framework.org/
 
+# 默认的 DRF FilterSet 不支持某些派生字段类型，例如 JSONField，通过这样的方式全局注册替换支持
+from django_filters import filterset, CharFilter
+from django.db.models import JSONField
+
+filterset.FilterSet.Meta = type('Meta', (object,), dict(
+    filter_overrides={JSONField: {'filter_class': CharFilter}}
+))
+
 REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_PAGINATION_CLASS':
