@@ -42,7 +42,7 @@ class UserContext(object):
     @classmethod
     def destroy(cls, context_id):
         """ 销毁一个 context_id 的缓存文件 """
-        session_file = os.path.join(cls.SESSION_DIR, '.session', context_id)
+        session_file = os.path.join(cls.SESSION_DIR, context_id)
         if os.path.isfile(session_file):
             os.remove(session_file)
 
