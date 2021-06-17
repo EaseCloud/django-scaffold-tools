@@ -58,7 +58,7 @@ def response_success(msg='', *, data=None, silent=False):
         payload['silent'] = True
     if data:
         payload['data'] = data
-    return JsonResponse(payload)
+    return JsonResponse(payload, json_dumps_params=dict(ensure_ascii=False))
 
 
 def response_fail(msg='', errcode=0, *, status=400, data=None, silent=False):
@@ -71,4 +71,4 @@ def response_fail(msg='', errcode=0, *, status=400, data=None, silent=False):
         payload['data'] = data
     if errcode:
         payload['errcode'] = errcode
-    return JsonResponse(payload, status=status)
+    return JsonResponse(payload, status=status, json_dumps_params=dict(ensure_ascii=False))
