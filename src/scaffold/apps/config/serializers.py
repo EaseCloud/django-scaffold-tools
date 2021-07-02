@@ -9,6 +9,12 @@ class OptionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = m.UserOption
+        fields = '__all__'
+
+
 class VersionSerializer(serializers.ModelSerializer):
     attachment_item = media_serializer.AttachmentSerializer(source='attachment', read_only=True)
 

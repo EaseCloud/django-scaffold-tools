@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import ModelBase
 from rest_framework import viewsets
@@ -55,6 +56,31 @@ class OptionViewSet(viewsets.GenericViewSet):
             for cls in app.values():
                 inspect_class(cls)
         return Response(result)
+
+
+class UserOptionViewSet(viewsets.GenericViewSet):
+    queryset = m.UserOption.objects.all()
+    serializer_class = s.UserOptionSerializer
+    filter_fields = '__all__'
+
+    @action(methods=['GET'], detail=False)
+    @login_required
+    def get_all(self, request):
+        user = request.user
+        return Response(m.UserOption.get_all(user))
+
+    @action(methods=['GET'], detail=False)
+    @login_required
+    def get(self, request):
+        user = request.user
+        return Response(m.UserOption.get(user, request.query_params.get('key')))
+
+    @action(methods=['POST'], detail=False)
+    @login_required
+    def set(self, request):
+        user = request.user
+        m.UserOption.set(user, request.data.get('key'), request.data.get('value'))
+        return u.http.response_success('设置成功', silent=True)
 
 
 class VersionViewSet(viewsets.ModelViewSet):

@@ -143,6 +143,16 @@ class UserOption(models.Model):
         return dict([(item.key, item.value) for item in user.options.all()])
 
     @classmethod
+    def get(cls, user, key):
+        """ 获取选项值
+        :param key: 选项的关键字
+        :param user: 选项对应的用户
+        :return: 匹配到的选项值，如果没有此选项，返回 None
+        """
+        opt = cls.objects.filter(user=user, key=key).first()
+        return opt and opt.value
+
+    @classmethod
     def set(cls, user, key, val):
         """ 设置选项值
         :param user: 用户
