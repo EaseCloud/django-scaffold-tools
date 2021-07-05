@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import ModelBase
+from django.utils.decorators import method_decorator
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -64,19 +65,19 @@ class UserOptionViewSet(viewsets.GenericViewSet):
     filter_fields = '__all__'
 
     @action(methods=['GET'], detail=False)
-    @login_required
+    @method_decorator(login_required)
     def get_all(self, request):
         user = request.user
         return Response(m.UserOption.get_all(user))
 
     @action(methods=['GET'], detail=False)
-    @login_required
+    @method_decorator(login_required)
     def get(self, request):
         user = request.user
         return Response(m.UserOption.get(user, request.query_params.get('key')))
 
     @action(methods=['POST'], detail=False)
-    @login_required
+    @method_decorator(login_required)
     def set(self, request):
         user = request.user
         m.UserOption.set(user, request.data.get('key'), request.data.get('value'))
