@@ -180,7 +180,7 @@ else:
     )
 
 # User default router: map from config, default to default
-DATABASE_ROUTERS = ['scaffold.db_router.AppRouter']
+DATABASE_ROUTERS = ['scaffold.utils.db_router.AppRouter']
 # map appname to database name, example: {'core': 'default', 'myapp': 'db2'}
 DATABASE_ROUTE_MAP = dict()
 
