@@ -179,6 +179,11 @@ else:
         f'If you want more DB type to be supported, a pull request is welcomed.'
     )
 
+# User default router: map from config, default to default
+DATABASE_ROUTERS = ['scaffold.db_router.AppRouter']
+# map appname to database name, example: {'core': 'default', 'myapp': 'db2'}
+DATABASE_ROUTE_MAP = dict()
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
