@@ -156,7 +156,8 @@ def auto_collect_urls(modules: Union[ModuleType, List[ModuleType]]):
     for module in modules:
         for key, item in module.__dict__.items():
             # Catches name ends with ViewSet.
-            if key.endswith('ViewSet'):
+            # 检验 queryset 存在这个条件主要是为了排除 GenericViewSet 等非自定义 ViewSet 类被捕捉到
+            if key.endswith('ViewSet') and getattr(item, 'queryset', None) is not None:
                 # Replacing ViewSet from uppercase to underscored naming as Rest resource name.
                 name = key.replace('ViewSet', '')
                 name = re.sub(r'([A-Z])', '_\\1', name)[1:].lower()
