@@ -26,10 +26,22 @@ class ActionBasedPermission(AllowAny):
 
     def has_permission(self, request, view):
         for actions, cls in getattr(view, 'action_permissions', {}).items():
+            # 支持 actions 是字符串或者数组，如果是字符串先转为数组
             if isinstance(actions, str):
                 actions = re.split(r'\s+|[\.\|,]', actions)
+            # 判断是当前 view 的动作是否在清单中
             if view.action in actions:
                 return cls().has_permission(request, view)
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        for actions, cls in getattr(view, 'action_permissions', {}).items():
+            # 支持 actions 是字符串或者数组，如果是字符串先转为数组
+            if isinstance(actions, str):
+                actions = re.split(r'\s+|[\.\|,]', actions)
+            # 判断是当前 view 的动作是否在清单中
+            if view.action in actions:
+                return cls().has_object_permission(request, view, obj)
         return True
 
 
