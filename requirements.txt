@@ -2,11 +2,12 @@ django>=3,<4
 django-cors-headers
 django-cron
 django-filter
-djangorestframework>=3
+django-fullclean
+django-uuslug
+djangorestframework>=3,<4
 # djangorestframework-filters
 djangorestframework-queryfields
 djangorestframework-yaml
 mysqlclient
 pillow
-django-uuslug
 requests
