@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from django.contrib.auth.models import User
@@ -15,6 +16,12 @@ from scaffold.exceptions.exceptions import AppError
 #                 setattr(model_class, k, obj)
 #
 #     return do_patch
+
+class UUIDModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        abstract = True
 
 
 class SortableModel(models.Model):
