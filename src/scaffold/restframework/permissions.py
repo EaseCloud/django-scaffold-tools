@@ -1,10 +1,14 @@
 """ Extended rest_framework permissions classes """
 import re
+from logging import getLogger
+
 from django.conf import settings
-from rest_framework.permissions import *
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+logger = getLogger(__name__)
 
 
-class ActionBasedPermission(AllowAny):
+class ActionBasedPermission(BasePermission):
     """ ViewSet action level Permission integrator
     https://stackoverflow.com/a/47528633/2544762
     Grant or deny access to a view, based on a mapping in view.action_permissions
@@ -45,10 +49,24 @@ class ActionBasedPermission(AllowAny):
         return True
 
 
+class IsAuthor(BasePermission):
+    """ has permission if the current user is the author of the object """
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        return obj.author == request.user
+
+
+# TODO: Planning to deprecate in 1.0
 class IsAdminOrIsSelf(BasePermission):
     """ has permission if the current user is the owner of the object or admin user """
 
     def has_object_permission(self, request, view, obj):
+        logger.warning(
+            'Do not use IsAdminOrIsSelf permission, '
+            'use bitwise OR to compose IsAuthor and IsAdminUser instead.')
         return obj.author == request.user or \
                request.user.is_staff or \
                request.user.is_superuser
@@ -94,3 +112,6 @@ class HasPermissions(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.is_superuser or any(request.user.has_perm(perm) for perm in self.perms)
+
+    def has_object_permission(self, request, view, obj):
+        return self.has_permission(request, view)
