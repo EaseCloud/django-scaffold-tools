@@ -86,7 +86,7 @@ publish:
 version:
 	@newVersion=$$(awk -F. '{print $$1"."$$2"."$$3+1}' < VERSION) \
 		&& echo $${newVersion} > VERSION \
-		&& echo VERSION = \'$${newVersion}\' > src/version.py \
+		&& echo VERSION = \'$${newVersion}\' > src/scaffold/version.py \
 		&& git add VERSION src/scaffold/version.py \
 		&& git commit -m "$${newVersion}" > /dev/null \
 		&& git tag "$${newVersion}" \
