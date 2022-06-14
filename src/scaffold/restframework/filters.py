@@ -121,9 +121,10 @@ class DeepFilterBackend:
         if key[0] == '!':
             return ~self.get_single_condition_query(key[1:], val)
         # 管理员登录可以豁免，否则所有的级联搜索必须显式放行
+        user = getattr(self.request, 'user')
         if not self.get_setting_value('ALLOW_ALL_DEEP_PARAMS', False) \
-                and not self.request.user.is_superuser \
-                and key not in self.allowed_deep_params:
+                and key not in self.allowed_deep_params \
+                and (not user or not user.is_superuser):
             print(
                 '!!!! Deep filter param not registered: ' + key + '\n' +
                 'The param is skipped, to make it work, '
