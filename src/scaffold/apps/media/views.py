@@ -14,4 +14,5 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = m.Attachment.objects.all()
     serializer_class = s.AttachmentSerializer
     filter_fields = '__all__'
+    filterset_fields = ['id', 'name', 'ext_url']
     ordering = ['-pk']
