@@ -2,6 +2,7 @@ import tempfile
 
 import requests
 import os.path
+from django.conf import settings
 from django.db import models
 
 from scaffold.exceptions.exceptions import AppError
@@ -40,6 +41,17 @@ class AbstractAttachment(models.Model):
         if not self.name and file_field:
             self.name = file_field.name
         super().save(*args, **kwargs)
+        
+    def delete(self, *args, **kwargs):
+        if getattr(settings, 'SCAFFOLD_AUTO_DELETE_FILE', False):
+            for field in self._meta.fields:
+                if isinstance(field, models.FileField):
+                    file = getattr(self, field.name)
+                    try:
+                        file.delete(False)
+                    except:
+                        pass
+        return super(AbstractAttachment, self).delete(*args, **kwargs)
 
 
 class Image(AbstractAttachment,
