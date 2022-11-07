@@ -18,7 +18,7 @@ class AbstractMember(EntityModel):
     user = models.OneToOneField(
         primary_key=True,
         verbose_name='用户',
-        to=User,
+        to='auth.User',
         related_name='%(class)s',
         db_column='user_id',
         on_delete=models.CASCADE,
