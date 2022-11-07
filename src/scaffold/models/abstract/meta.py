@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -280,7 +279,7 @@ class AbstractValidationModel(models.Model):
 class AbstractTransactionModel(models.Model):
     debit = models.ForeignKey(
         verbose_name='借方用户',
-        to=User,
+        to='auth.User',
         related_name='%(class)ss_debit',
         null=True,
         blank=True,
@@ -291,7 +290,7 @@ class AbstractTransactionModel(models.Model):
 
     credit = models.ForeignKey(
         verbose_name='贷方用户',
-        to=User,
+        to='auth.User',
         related_name='%(class)ss_credit',
         null=True,
         blank=True,
