@@ -7,10 +7,11 @@ from ..utils.http import response_fail
 class AppErrorMiddleware(MiddlewareMixin):
     @staticmethod
     def process_exception(request, exception):
-        if type(exception) == AppError:
+        if isinstance(exception, AppError):
             import traceback
             from sys import stderr
             from django.conf import settings
+            # TODO: Collect error to message queue
             if exception.debug or settings.API_DEBUG:
                 print(traceback.format_exc(), file=stderr)
             return response_fail(

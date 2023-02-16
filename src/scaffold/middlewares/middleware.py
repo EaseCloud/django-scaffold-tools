@@ -1,6 +1,7 @@
 from django.conf import settings
 from threading import currentThread
 from django.utils.deprecation import MiddlewareMixin
+from ..utils.http import response_fail
 
 _requests = {}
 
@@ -31,14 +32,12 @@ class CustomExceptionMiddleware(MiddlewareMixin):
         from django.core.exceptions import ValidationError
         # Retrieves the error message, response error message only.
         msg = exception.message if hasattr(exception, 'message') else str(exception)
+        # TODO: Collect error
         # Bypass the exception raised but still print to stderr
         if settings.DEBUG or type(exception) not in [AssertionError, ValidationError]:
             print(traceback.format_exc(), file=stderr)
         # Return a client-recognizable format.
-        return JsonResponse(dict(
-            ok=False,
-            msg=msg
-        ), status=400)
+        return response_fail(msg=msg, errcode=-1, status=400)
 
 
 # class SingleSessionMiddleware(MiddlewareMixin):
@@ -69,6 +68,7 @@ class CustomExceptionMiddleware(MiddlewareMixin):
 
 class FullMediaUrlMiddleware(MiddlewareMixin):
     """ 在 MediaUrl 中自动拼接完整的 request 路径 """
+
     @staticmethod
     def process_request(request):
         from django.conf import settings
