@@ -4,6 +4,13 @@ import pickle
 import requests
 from uuid import uuid4
 
+__all__ = {
+    'UserContext',
+    'response_success',
+    'response_fail',
+    'requests_ssl_strict_off',
+}
+
 
 class UserContext(object):
     """ 用于独立保存登录状态的 CookieJar 封装，可以持久化指定请求的 Cookie 以及部分 Header """
@@ -81,3 +88,13 @@ def response_fail(msg='', errcode=0, *, status=400, data=None, silent=False):
         payload['errcode'] = errcode
     from django.http import JsonResponse
     return JsonResponse(payload, status=status, json_dumps_params=dict(ensure_ascii=False))
+
+
+def requests_ssl_strict_off(level=1):
+    import urllib3
+    # 修复 requests midea https SSL 版本过旧的问题（DH_KEY_TOO_SMALL）
+    urllib3.disable_warnings()
+    urllib3.util.ssl_.DEFAULT_CIPHERS = f'DEFAULT:@SECLEVEL={level}'  # 王炸
+    for flag in [':HIGH', ':!DH', ':!aNULL']:
+        if flag not in urllib3.util.ssl_.DEFAULT_CIPHERS:
+            urllib3.util.ssl_.DEFAULT_CIPHERS += flag
