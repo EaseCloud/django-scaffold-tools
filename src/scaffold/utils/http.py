@@ -66,11 +66,11 @@ class UserContext(object):
 
 def response_success(msg='', *, data=None, silent=False):
     payload = dict(ok=True)
-    if msg:
+    if msg is not None:
         payload['msg'] = msg
     if silent:
         payload['silent'] = True
-    if data:
+    if data is not None:
         payload['data'] = data
     from django.http import JsonResponse
     return JsonResponse(payload, json_dumps_params=dict(ensure_ascii=False))
@@ -78,11 +78,11 @@ def response_success(msg='', *, data=None, silent=False):
 
 def response_fail(msg='', errcode=0, *, status=400, data=None, silent=False):
     payload = dict(ok=False)
-    if msg:
+    if msg is not None:
         payload['msg'] = msg
     if silent:
         payload['silent'] = True
-    if data:
+    if data is not None:
         payload['data'] = data
     if errcode:
         payload['errcode'] = errcode
