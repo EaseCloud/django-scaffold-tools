@@ -64,7 +64,7 @@ class UserContext(object):
         [print('>>>>', k, '>>>>\n' + str(v), '\n<<<<\n') for k, v in self.__dict__.items()]
 
 
-def response_success(msg='', *, data=None, silent=False):
+def response_success(msg=None, *, data=None, silent=False):
     payload = dict(ok=True)
     if msg is not None:
         payload['msg'] = msg
@@ -76,7 +76,7 @@ def response_success(msg='', *, data=None, silent=False):
     return JsonResponse(payload, json_dumps_params=dict(ensure_ascii=False))
 
 
-def response_fail(msg='', errcode=0, *, status=400, data=None, silent=False):
+def response_fail(msg=None, errcode=0, *, status=400, data=None, silent=False):
     payload = dict(ok=False)
     if msg is not None:
         payload['msg'] = msg
