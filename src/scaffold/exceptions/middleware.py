@@ -15,7 +15,7 @@ class AppErrorMiddleware(MiddlewareMixin):
             if exception.debug or settings.API_DEBUG:
                 print(traceback.format_exc(), file=stderr)
             return response_fail(
-                exception.message,
+                exception.messages[0],
                 exception.code,
                 status=exception.http_status,
                 data=exception.data,
