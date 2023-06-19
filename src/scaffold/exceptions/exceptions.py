@@ -36,3 +36,7 @@ class AppError(ValidationError):
     def set_status_code(self, status_code):
         self.http_status = status_code
         return self
+
+    def set_params(self, params):
+        self.params = params
+        return self
