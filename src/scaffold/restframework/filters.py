@@ -142,7 +142,7 @@ class DeepFilterBackend:
         # 如果是 id 列表类的入参，按照逗号进行分割
         if key.endswith('__in') and re.match(r'^(?:\d+,)*\d+$', val):
             val = map(int, val.split(','))
-        elif key.endswith('__in') and re.match(r'^(?:[\d\w\-_]+,)*[\d\w\-_]+$', val):
+        elif key.endswith('__in') and re.match(r'^(?:[\d\w\-_.]+,)*[\d\w\-_.]+$', val):
             val = val.split(',')
         # 返回展开的条件
         return Q(**{key: val})
