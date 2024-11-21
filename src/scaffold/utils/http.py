@@ -23,7 +23,8 @@ class UserContext(object):
             os.makedirs(os.path.dirname(self.session_file_path), exist_ok=True)
         # 如果已有就读 pickle，否则创建一个新的 Session 对象
         if os.path.isfile(self.session_file_path):
-            self.session = pickle.load(open(self.session_file_path, 'rb'))
+            with open(self.session_file_path, 'rb') as file:
+                self.session = pickle.load(file)
         else:
             self.session = requests.Session()
         # 统一限定 UserAgent 免得有些站点闹别扭
@@ -33,9 +34,8 @@ class UserContext(object):
         })
 
     def save(self):
-        file = open(self.session_file_path, 'wb')
-        pickle.dump(self.session, file)
-        file.close()
+        with open(self.session_file_path, 'wb') as file:
+            pickle.dump(self.session, file)
 
     def delete(self):
         if os.path.isfile(self.session_file_path):
