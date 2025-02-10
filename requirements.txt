@@ -8,6 +8,6 @@ djangorestframework>=3,<4
 # djangorestframework-filters
 djangorestframework-queryfields
 djangorestframework-yaml
-mysqlclient
+# mysqlclient
 pillow
 requests
