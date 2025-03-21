@@ -65,6 +65,7 @@ class Image(AbstractAttachment,
 
     image = models.ImageField(
         verbose_name='图片',
+        max_length=255,
         upload_to='images/',
         null=False,
         blank=True,
@@ -156,6 +157,7 @@ class Video(AbstractAttachment,
 
     video = models.FileField(
         verbose_name='视频',
+        max_length=255,
         upload_to='video/'
     )
 
@@ -177,6 +179,7 @@ class Audio(AbstractAttachment,
 
     audio = models.FileField(
         verbose_name='音频',
+        max_length=255,
         upload_to='audio/'
     )
 
@@ -218,6 +221,7 @@ class Attachment(AbstractAttachment,
 
     file = models.FileField(
         verbose_name='上传附件',
+        max_length=255,
         upload_to='attachment/',
         null=False,
         blank=True,
